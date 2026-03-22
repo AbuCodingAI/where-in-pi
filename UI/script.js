@@ -5,21 +5,27 @@ async function findInPi() {
     const status = document.getElementById('status');
 
     if (!query) return;
-    status.innerText = "Searching local data...";
+
+    status.innerText = "Searching Pi...";
     res.innerText = "";
 
     try {
-        const response = await fetch(`http://127.0.0.1{type}/${encodeURIComponent(query)}`);
-        const data = await response.json();
+        // PRODUCTION FIX: Use relative paths for Render (HTTPS compatible)
+        const response = await fetch(`/search/${type}/${encodeURIComponent(query)}`);
         
-        if (data.calculating) {
-            status.innerText = "Not in local file. Calculating more digits...";
-            // Optional: Poll again or wait for long-poll response
+        if (!response.ok) {
+            const errorData = await response.json();
+            res.innerText = errorData.message || "Sequence not found.";
+            status.innerText = "Not found.";
+            return;
         }
-        
-        status.innerText = data.found ? "Success!" : "Not found.";
+
+        const data = await response.json();
+        status.innerText = "Success!";
         res.innerText = data.message;
     } catch (err) {
-        res.innerText = "Backend Connection Error.";
+        console.error(err);
+        res.innerText = "Error connecting to the Pi engine.";
+        status.innerText = "Connection failed.";
     }
 }
