@@ -1,11 +1,7 @@
-use num_bigint::{BigInt, ToBigInt};
-use num_traits::{One, Zero};
+use num_bigint::ToBigInt;
 
+/// Calculates Pi to a specific number of decimal places for dynamic expansion.
 pub fn calculate_pi_to_precision(digits: usize) -> String {
-    // Chudnovsky Algorithm Implementation in Rust
-    let decimal_precision = digits + 2;
-    let iterations = (digits / 14) + 1;
-
     let mut q = 1.to_bigint().unwrap();
     let mut r = 0.to_bigint().unwrap();
     let mut t = 1.to_bigint().unwrap();
@@ -16,10 +12,10 @@ pub fn calculate_pi_to_precision(digits: usize) -> String {
     let mut result = String::new();
     let mut count = 0;
 
+    // Standard digit-by-digit spigot-style algorithm for stability
     while count < digits {
         if &q * 4 + &r - &t < &n * &t {
             result.push_str(&n.to_string());
-            if count == 0 { result.push('.'); }
             let nr = (&r - &n * &t) * 10;
             n = (&q * 3 + &r) * 10 / &t - &n * 10;
             q *= 10;
@@ -36,5 +32,5 @@ pub fn calculate_pi_to_precision(digits: usize) -> String {
             r = nr;
         }
     }
-    result.replace(".", "")
+    result
 }
