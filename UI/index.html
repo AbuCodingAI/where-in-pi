@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Where in Pi - Production</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Where in Pi?</h1>
+        <div class="input-group">
+            <select id="searchType">
+                <option value="number">Numbers</option>
+                <option value="text">Text (ASCII)</option>
+            </select>
+            <input type="text" id="searchQuery" placeholder="e.g. 1415 or Hello">
+            <button onclick="findInPi()">Search</button>
+        </div>
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,27 @@
+[package]
+name = "where-in-pi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# High-performance web framework for the API
+actix-web = "4"
+# Necessary for serving your static HTML/CSS/JS files
+actix-files = "0.6"
+# Cross-Origin Resource Sharing (CORS) support for Render deployment
+actix-cors = "0.7"
+
+# Standard serialization/deserialization for JSON responses
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Zero-copy memory mapping for fast file searching
+memmap2 = "0.9"
+
+# Support for the massive integers needed in the Chudnovsky algorithm
+num-bigint = "0.4"
+num-traits = "0.2"
+
+# Logging for production monitoring on Render
+env_logger = "0.10"
+

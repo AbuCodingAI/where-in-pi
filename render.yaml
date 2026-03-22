@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: where-in-pi-api
+    env: rust
+    buildCommand: "./scripts/setup.sh" # Builds Rust + Generates initial Pi
+    startCommand: "./target/release/where-in-pi"
+    plan: free
+    disk:
+      name: pi-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
