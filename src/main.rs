@@ -1,4 +1,4 @@
-mod pi; // Ensure src/pi.rs exists
+mod pi; // Links to your src/pi.rs file
 
 use actix_cors::Cors;
 use actix_files::Files;
@@ -10,9 +10,9 @@ use std::fs;
 struct SearchResponse {
     found: bool,
     message: String,
+    expansion_triggered: bool,
 }
 
-// Map text to ASCII digits
 fn to_ascii_digits(text: &str) -> String {
     text.chars().map(|c| (c as u8).to_string()).collect()
 }
@@ -21,46 +21,61 @@ fn to_ascii_digits(text: &str) -> String {
 async fn handle_search(path: web::Path<(String, String)>) -> impl Responder {
     let (stype, query) = path.into_inner();
     
-    // Convert to ASCII if search type is text
+    // 1. Map text to digits if necessary
     let target = if stype == "text" { 
         to_ascii_digits(&query) 
     } else { 
         query.clone() 
     };
 
-    // Load local Pi data
+    // 2. Search Local 1M Digits first (Fastest)
     let pi_data = fs::read_to_string("data/pi_million.txt").unwrap_or_default();
     
     if let Some(pos) = pi_data.find(&target) {
         return HttpResponse::Ok().json(SearchResponse {
             found: true,
-            message: format!("Found '{}' at index {}", query, pos),
+            message: format!("Found '{}' (as {}) at index {} [LOCAL]", query, target, pos),
+            expansion_triggered: false,
         });
     }
 
+    // 3. EXPANSION LOGIC: Not in 1M? Calculate 2M and search again
+    println!("[*] '{}' not in local data. Expanding search to 2M digits...", query);
+    
+    // Call the function from your pi.rs
+    let expanded_pi = pi::calculate_pi_to_precision(2_000_000);
+    
+    if let Some(pos) = expanded_pi.find(&target) {
+        return HttpResponse::Ok().json(SearchResponse {
+            found: true,
+            message: format!("Found '{}' at index {} [EXPANDED]", query, pos),
+            expansion_triggered: true,
+        });
+    }
+
+    // 4. Final Failure
     HttpResponse::NotFound().json(SearchResponse {
         found: false,
-        message: format!("'{}' not found in local data.", query),
+        message: format!("'{}' not found even after calculating 2M digits.", query),
+        expansion_triggered: true,
     })
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Logging for Render console
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    println!("Starting production server on port 10000...");
+    println!("Starting Where-in-Pi Production Engine on port 10000...");
 
     HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())
-            .wrap(Cors::permissive()) // Required for web access
-            .service(handle_search)   // Registers the /search route
-            // Serves files from the 'static' folder (mapped from UI/ in Dockerfile)
+            .wrap(Cors::permissive())
+            .service(handle_search)
             .service(Files::new("/", "./static").index_file("index.html"))
     })
-    .bind("0.0.0.0:10000")? // Bind to Render's required port
+    .bind("0.0.0.0:10000")?
     .run()
     .await
 }
