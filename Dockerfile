@@ -21,7 +21,7 @@ COPY --from=builder /usr/src/where-in-pi/target/release/where-in-pi /usr/local/b
 # Copy your pre-generated Pi data and static web files
 # NOTE: Source is 'ui/' to match your project structure, mapped to '/app/static' in container
 COPY data/ ./data/
-COPY ui/ ./static/
+COPY UI/ ./static/
 
 # Render uses port 10000 by default
 EXPOSE 10000
